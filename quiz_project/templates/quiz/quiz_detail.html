@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.title }} | QuizHub{% endblock %}
+{% block content %}
+<div class="mb-4"><a href="{% url 'dashboard' %}" class="text-decoration-none">← Back to dashboard</a>
+  <h1 class="h2 mt-3">{{ quiz.title }}</h1>
+  <p class="text-muted">{{ quiz.description }}</p><span class="badge category-badge">{{ quiz.category }}</span>
+  <span class="text-muted small ms-2">{{ quiz.duration_minutes }} minute(s) · {{ questions|length }} questions</span>
+</div>
+{% if questions %}
+<form method="post" action="{% url 'submit_quiz' quiz.id %}" id="quizForm">{% csrf_token %}
+  {% for question in questions %}
+  <div class="card question-card mb-3">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between">
+        <h2 class="h5">Question {{ forloop.counter }}</h2>
+        <span class="badge bg-light text-dark">{{ question.marks }} mark(s)</span>
+      </div>
+      <p class="mb-3">{{ question.text }}</p>
+      {% for choice in question.choices.all %}
+      <label class="choice-option"><input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}">
+        <span>{{ choice.text }}</span></label>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  <div class="d-flex justify-content-between align-items-center"><span class="text-muted small" id="answeredCount">0 of
+      {{ questions|length }} answered</span><button class="btn btn-success btn-lg" type="submit">Submit answers</button>
+  </div>
+</form>
+{% else %}<div class="alert alert-warning">This quiz has no questions yet.</div>{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("quizForm");
+    if (!form) return;
+    const radios = form.querySelectorAll('input[type="radio"]');
+    const update = () => {
+      const names = new Set(Array.from(radios).filter(r => r.checked).map(r => r.name));
+      document.getElementById("answeredCount").textContent = names.size + " of {{ questions|length }} answered";
+    };
+    radios.forEach(r => r.addEventListener("change", update));
+    form.addEventListener("submit", function (e) {
+      if (!confirm("Are you sure you want to submit your answers?")) e.preventDefault();
+    });
+  });
+</script>{% endblock %}

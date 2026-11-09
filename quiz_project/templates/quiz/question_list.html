@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Manage Questions | QuizHub{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div><a href="{% url 'manage_quizzes' %}">← Manage quizzes</a>
+        <h1 class="h2 mt-2">{{ quiz.title }} – Questions</h1>
+    </div><a class="btn btn-primary" href="{% url 'question_create' quiz.id %}">+ Add question</a>
+</div>
+{% for question in questions %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between gap-2">
+            <div><strong>{{ forloop.counter }}. {{ question.text }}</strong>
+                <div class="small text-muted mt-1">{{ question.marks }} mark(s)</div>
+                <ol type="A" class="mt-2 mb-0">{% for choice in question.choices.all %}<li>
+                    {% if choice.is_correct %}
+                    <strong class="text-success">{{ choice.text }} ✓</strong>
+                    {% else %}{{ choice.text }}{% endif %}</li>
+                    {% endfor %}
+                </ol>
+            </div>
+            <div class="text-nowrap"><a class="btn btn-sm btn-outline-primary"
+                    href="{% url 'question_edit' question.id %}">Edit</a>
+                <form method="post" action="{% url 'question_delete' question.id %}" class="d-inline"
+                    onsubmit="return confirm('Delete this question?')">{% csrf_token %}<button
+                        class="btn btn-sm btn-outline-danger">Delete</button></form>
+            </div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="empty-state">No questions added. Click “Add question” to begin.</div>
+{% endfor %}
+{% endblock %}

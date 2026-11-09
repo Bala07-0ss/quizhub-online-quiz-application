@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Quiz Result | QuizHub{% endblock %}
+{% block content %}
+<div class="result-panel text-center p-4 p-md-5 mb-4">
+    <span class="badge bg-light text-primary mb-2">QUIZ COMPLETED</span>
+    <h1 class="h2">{{ attempt.quiz.title }}</h1>
+    <div class="score-circle mx-auto my-4">
+        <strong>{{ attempt.percentage }}%</strong>
+        <span>{{ attempt.score }} / {{attempt.total_marks }}</span>
+    </div>
+    <p class="mb-0">{% if attempt.percentage >= 80 %}Excellent work! Keep it up.{% elif attempt.percentage >= 50 %}Goodeffort. Keep practising!{% else %}Keep learning and try again.{% endif %}</p>
+    <a href="{% url 'dashboard' %}" class="btn btn-light mt-4">Back to dashboard</a>
+</div>
+<h2 class="h5 mb-3">Answer review</h2>
+{% for answer in answers %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between gap-2"><strong>{{ forloop.counter }}. {{ answer.question.text}}</strong>{% if answer.is_correct %}<span class="badge bg-success">Correct</span>{% else %}<span
+                class="badge bg-danger">Incorrect</span>{% endif %}</div>
+        <p class="mb-1 mt-2 small">Your answer: {{ answer.selected_choice.text|default:"Not answered" }}</p>
+        {% if not answer.is_correct %}<p class="mb-0 small text-success">Correct answer: {% for choice in answer.question.choices.all %}{% if choice.is_correct %}{{ choice.text }}{% endif %}{% endfor %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

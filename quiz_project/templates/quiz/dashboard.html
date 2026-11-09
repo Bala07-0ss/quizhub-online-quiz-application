@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | QuizHub{% endblock %}
+{% block content %}
+<section class="hero-panel p-4 p-md-5 mb-4">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <h1 class="display-6 fw-bold">HI,{{ user.first_name|default:user.username}}</h1>
+      <span class="badge bg-light text-primary mb-3">LEARN · PRACTISE · IMPROVE</span>
+      <h1 class="display-6 fw-bold">Ready to challenge yourself?</h1>
+      <p class="lead mb-0">Choose a quiz, answer the questions and track your progress.</p>
+    </div>
+    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+      <div class="hero-mark">Q</div>
+    </div>
+  </div>
+</section>
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="stat-card"><span>Available quizzes</span><strong>{{ total_quizzes }}</strong></div>
+  </div>
+  <div class="col-md-6">
+    <div class="stat-card"><span>Your attempts</span><strong>{{ total_attempts }}</strong></div>
+  </div>
+</div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+  <div>
+    <h2 class="h4 mb-1">Explore quizzes</h2>
+    <p class="text-muted mb-0">Find a topic and start learning.</p>
+  </div>
+  <form class="d-flex" method="get"><input class="form-control me-2" name="q" value="{{ search }}"
+      placeholder="Search title or category"><button class="btn btn-outline-primary">Search</button></form>
+</div>
+<div class="row g-3">
+  {% for quiz in quizzes %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card quiz-card h-100">
+      <div class="card-body d-flex flex-column">
+        <span class="badge category-badge align-self-start">{{ quiz.category }}</span>
+        <h3 class="h5 mt-3">{{ quiz.title }}</h3>
+        <p class="text-muted flex-grow-1">{{ quiz.description|default:"Test your knowledge with this quiz."|truncatewords:22 }}</p>
+        <div class="d-flex justify-content-between small text-muted mb-3"><span>{{ quiz.question_count }}
+            questions</span><span>{{ quiz.duration_minutes }} mins</span></div>
+        <a class="btn btn-primary" href="{% url 'quiz_detail' quiz.id %}">Start quiz</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}<div class="col-12">
+    <div class="empty-state">No quizzes found. Try another search.</div>
+  </div>{% endfor %}
+</div>
+<div class="mt-5">
+  <h2 class="h5 mb-3">Recent attempts</h2>
+  <div class="table-responsive">
+    <table class="table align-middle bg-white">
+      <thead>
+        <tr>
+          <th>Quiz</th>
+          <th>Score</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attempt in attempts %}<tr>
+          <td>{{ attempt.quiz.title }}</td>
+          <td>{{ attempt.score }} / {{ attempt.total_marks }}</td>
+          <td>{{ attempt.completed_at|date:"d M Y, h:i A" }}</td>
+          <td><a href="{% url 'result' attempt.id %}">View</a></td>
+        </tr>
+        {% empty %}<tr>
+          <td colspan="4" class="text-muted">You have not attempted a quiz yet.</td>
+        </tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
